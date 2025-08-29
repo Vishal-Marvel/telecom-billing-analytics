@@ -1,4 +1,4 @@
-package com.telecom.service;
+package com.telecom.service.interfaces;
 
 public interface SubscriptionService {
 }
