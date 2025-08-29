@@ -21,5 +21,4 @@ public class Invoice {
     private double totalAmount;
 
     private boolean paid;
-    private String notes;   // e.g., credit control, fairness surcharge info
 }
