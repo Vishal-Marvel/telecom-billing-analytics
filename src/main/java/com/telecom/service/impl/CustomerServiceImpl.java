@@ -1,4 +1,7 @@
 package com.telecom.service.impl;
 
-public class CustomerServiceImpl {
+import com.telecom.service.interfaces.CustomerService;
+
+public class CustomerServiceImpl implements CustomerService {
+
 }

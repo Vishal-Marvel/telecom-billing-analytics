@@ -1,22 +1,18 @@
 package com.telecom.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode
 public class Customer {
-    private Long id;
+    private String id;
     private String name;
     private String email;
-    private Long referredBy;
+    private String referredBy;    // Customer ID of referrer
     private boolean creditBlocked;
-
-
 }
