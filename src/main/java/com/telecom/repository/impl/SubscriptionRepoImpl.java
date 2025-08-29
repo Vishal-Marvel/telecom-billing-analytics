@@ -1,4 +1,4 @@
-package com.telecom.repositories.impl;
+package com.telecom.repository.impl;
 
 public class SubscriptionRepoImpl {
 }
