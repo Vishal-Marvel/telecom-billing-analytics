@@ -1,26 +1,30 @@
 package com.telecom.models;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 public class Plan {
-    private Long id;
+    private String id;
     private String name;
     private double monthlyRental;
-    private double dataAllowanceGb;
-    private double voiceAllowanceMinutes;
-    private int smsAllowanceCount;
-    private boolean isFamilyShare;
-    private double overageRateGb = 10.0;
-    private double overageRateVoice = 0.5;
-    private double overageRateSms = 0.2;
+    private int validity;
+
+    // Allowances
+    private double dataAllowanceMb;
+    private int voiceAllowanceMin;
+    private int smsAllowance;
+
+    // Overage rates
+    private double dataOverageRate;    // per MB
+    private double voiceOverageRate;   // per min
+    private double smsOverageRate;     // per SMS
+
+    // Special rules
     private boolean weekendFreeVoice;
-    private double familyShareCap = 0.60;
+    private boolean rolloverAllowed;
+    private double familyShareCap;     // % of pooled data a single member can use
 }
