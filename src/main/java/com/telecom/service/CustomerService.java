@@ -1,4 +1,4 @@
-package com.telecom.services;
+package com.telecom.service;
 
 public interface CustomerService {
 }
