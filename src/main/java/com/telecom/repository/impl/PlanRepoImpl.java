@@ -1,4 +1,30 @@
 package com.telecom.repository.impl;
 
-public class PlanRepoImpl {
+import com.telecom.models.Plan;
+import com.telecom.repository.interfaces.PlanRepo;
+
+import java.util.*;
+
+public class PlanRepoImpl implements PlanRepo {
+    private final Map<String, Plan> db = new HashMap<>();
+
+    @Override
+    public void save(Plan plan) {
+        db.put(plan.getId(), plan);
+    }
+
+    @Override
+    public Optional<Plan> findById(String id) {
+        return  Optional.ofNullable(db.get(id));
+    }
+
+    @Override
+    public List<Plan> findAll() {
+        return new ArrayList<>(db.values());
+    }
+
+    @Override
+    public void delete(String id) {
+        db.remove(id);
+    }
 }
