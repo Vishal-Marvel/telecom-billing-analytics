@@ -64,6 +64,9 @@ public class AnalyticsController {
     private void displayArpuByPlan() {
         List<Invoice> invoices = invoiceRepo.findAll();
         Map<String, Double> arpu = analyticsService.arpuByPlan(invoices);
+        if (arpu.isEmpty()){
+            System.out.println("No Data found.");
+        }
         System.out.println("\n--- Average Revenue Per User (ARPU) by Plan ---");
         arpu.forEach((planId, avg) -> System.out.printf("Plan ID %s: $%.2f%n", planId, avg));
     }

@@ -1,8 +1,9 @@
 package com.telecom.service.interfaces;
 
+import java.util.List;
+
 import com.telecom.models.Subscription;
 
-import java.util.List;
 
 public interface SubscriptionService {
     void addSubscription(Subscription subscription);

@@ -16,7 +16,6 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class BillingController {
 
-    private final Scanner sc;
     private final BillingService billingService;
     private final SubscriptionService subscriptionService;
     private final PlanService planService;
@@ -24,17 +23,12 @@ public class BillingController {
 
     /**
      * Main CLI menu for the billing cycle.
+     * 
      * @param user The currently authenticated user.
      */
     public void runBillingCycle(User user) {
         System.out.println("\n--- Run Monthly Billing Cycle ---");
-        System.out.print("This will generate invoices for all of your subscriptions. Proceed? (y/n): ");
-        String choice = sc.nextLine();
 
-        if (!choice.equalsIgnoreCase("y")) {
-            System.out.println("Billing cycle cancelled.");
-            return;
-        }
 
         List<Subscription> subscriptions = subscriptionService.getCustomerSubscriptions(user.getCustomerId());
         List<UsageRecord> allUsage = usageRecordRepo.findAll(); // Get all usage for the period
@@ -54,13 +48,15 @@ public class BillingController {
                 System.err.printf("Could not generate invoice for subscription %s: %s%n", sub.getId(), e.getMessage());
             }
         }
+
     }
 
     /**
      * Prints a formatted invoice to the console.
+     * 
      * @param invoice The invoice to print.
      */
-    private void printInvoice(Invoice invoice) {
+    public void printInvoice(Invoice invoice) {
         System.out.println("-----------------------------------");
         System.out.printf("Invoice for Subscription ID: %s%n", invoice.getSubscriptionId());
         System.out.printf("  Base Rental: $%.2f%n", invoice.getBaseRental());

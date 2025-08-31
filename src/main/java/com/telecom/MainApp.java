@@ -44,8 +44,10 @@ public class MainApp {
         // Controllers
         LoginController loginController = new LoginController(sc, userService);
         PlanController planController = new PlanController(sc, planService);
-        AdminController adminController = new AdminController(sc, planService, customerService, userService, subscriptionService, planController);
-        CustomerController customerController = new CustomerController(sc, subscriptionService, planService, usageRecordRepo, invoiceRepo, billingService, familyService, customerService, userService);
+        AnalyticsController analyticsController = new AnalyticsController(sc, analyticsService, usageRecordRepo, invoiceRepo, planRepo);
+        BillingController billingController = new BillingController(billingService, subscriptionService, planService, usageRecordRepo);
+        AdminController adminController = new AdminController(sc, planService, customerService, userService, subscriptionService, planController, analyticsController);
+        CustomerController customerController = new CustomerController(sc, subscriptionService, planService, usageRecordRepo, invoiceRepo, familyService, customerService, billingController);
 
         // --- APPLICATION START ---
         System.out.println("\nWelcome to the Telecom Billing & Analytics System");

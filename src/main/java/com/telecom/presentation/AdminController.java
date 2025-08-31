@@ -26,6 +26,7 @@ public class AdminController {
     private final UserService userService;
     private final SubscriptionService subscriptionService;
     private final PlanController planController;
+    private final AnalyticsController analyticsController;
 
     /**
      * Main menu for Admin users.
@@ -38,6 +39,7 @@ public class AdminController {
                 System.out.println("2. Create New Customer");
                 System.out.println("3. View All Customers");
                 System.out.println("4. View Customer Details");
+                System.out.println("5. View Analytics");
                 System.out.println("0. Logout");
                 System.out.print("Select an option: ");
                 int choice = Integer.parseInt(sc.nextLine());
@@ -47,6 +49,7 @@ public class AdminController {
                     case 2: createNewCustomer(); break;
                     case 3: viewAllCustomers(); break;
                     case 4: viewCustomerDetails(); break;
+                    case 5: analyticsController.showAnalyticsMenu(); break;
                     case 0: return;
                     default: System.out.println("Invalid option. Please try again.");
                 }
