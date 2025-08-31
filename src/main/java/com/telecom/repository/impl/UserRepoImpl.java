@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class UserRepoImpl implements UserRepo {
-    private Map<String, User> db = new HashMap<>();
+    private final Map<String, User> db = new HashMap<>();
 
     @Override
     public void createUser(User user) {
