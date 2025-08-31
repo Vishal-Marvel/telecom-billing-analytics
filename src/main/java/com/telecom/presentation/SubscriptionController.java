@@ -1,0 +1,91 @@
+package com.telecom.presentation;
+
+import com.telecom.models.Plan;
+import com.telecom.models.Subscription;
+import com.telecom.models.User;
+import com.telecom.service.interfaces.PlanService;
+import com.telecom.service.interfaces.SubscriptionService;
+import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * Console viewer for all subscription-based operations.
+ */
+@RequiredArgsConstructor
+public class SubscriptionController {
+    private final Scanner sc;
+    private final SubscriptionService subscriptionService;
+    private final PlanService planService; // Needed to show plan details
+
+    /**
+     * Displays all subscriptions for the logged-in user.
+     * @param user The currently authenticated user.
+     */
+    public void showCustomerSubscriptions(User user) {
+        List<Subscription> subscriptions = subscriptionService.getCustomerSubscriptions(user.getCustomerId());
+        System.out.println("\n--- Your Subscriptions ---");
+        if (subscriptions.isEmpty()) {
+            System.out.println("You have no active subscriptions.");
+            return;
+        }
+        subscriptions.forEach(sub -> {
+            Plan plan = planService.getPlan(sub.getPlanId());
+            System.out.printf("ID: %s, Phone: %s%n", sub.getId(), sub.getPhoneNumber());
+            System.out.printf("  Plan: %s ($%.2f/month)%n", plan.getName(), plan.getMonthlyRental());
+            System.out.printf("  Status: Active since %s%n", sub.getStartDate());
+            if (sub.isMnpPending()) {
+                System.out.printf("  MNP Status: Port-out pending to %s since %s%n", sub.getTargetOperator(), sub.getMnpRequestDate());
+            }
+            System.out.println("-----------------------------------");
+        });
+    }
+
+    /**
+     * CLI to add a new subscription for the logged-in user.
+     * @param user The currently authenticated user.
+     */
+    public void addNewSubscription(User user) {
+        System.out.println("\n--- Add a New Subscription ---");
+        new PlanController(sc, planService).showAllPlans(); // Show available plans
+        System.out.print("Enter Plan ID to subscribe to: ");
+        String planId = sc.nextLine();
+        System.out.print("Enter new Phone Number: ");
+        String phone = sc.nextLine();
+        System.out.print("Enter Subscription ID: ");
+        String subId = sc.nextLine();
+
+        Subscription newSubscription = Subscription.builder()
+                .id(subId)
+                .customerId(user.getCustomerId())
+                .phoneNumber(phone)
+                .planId(planId)
+                .startDate(LocalDate.now())
+                .build();
+
+        subscriptionService.addSubscription(newSubscription);
+        System.out.println("Subscription added successfully!");
+    }
+
+    /**
+     * CLI to initiate an MNP port-out request.
+     * @param user The currently authenticated user.
+     */
+    public void initiateMnp(User user) {
+        System.out.println("\n--- Mobile Number Portability (MNP) Port-Out ---");
+        showCustomerSubscriptions(user);
+        System.out.print("Enter Subscription ID to port out: ");
+        String subId = sc.nextLine();
+        System.out.print("Enter Target Operator Name: ");
+        String operator = sc.nextLine();
+
+        try {
+            subscriptionService.requestMNP(subId, operator);
+            System.out.println("MNP request submitted successfully. Your plan cannot be changed until this is resolved.");
+        } catch (Exception e) {
+            System.err.println("Error submitting MNP request: " + e.getMessage());
+        }
+    }
+}

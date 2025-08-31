@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Subscription {
-    private static String id;
+    private String id;
     private String customerId;
     private String phoneNumber;
     private String planId;

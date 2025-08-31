@@ -1,11 +1,13 @@
 package com.telecom;
 
 import com.telecom.bootstrap.BootstrapEngine;
-import com.telecom.presentation.LoginController;
-import com.telecom.repository.impl.UserRepoImpl;
-import com.telecom.repository.interfaces.UserRepo;
-import com.telecom.service.impl.UserServiceImpl;
-import com.telecom.service.interfaces.UserService;
+import com.telecom.models.User;
+import com.telecom.models.enums.Role;
+import com.telecom.presentation.*;
+import com.telecom.repository.impl.*;
+import com.telecom.repository.interfaces.*;
+import com.telecom.service.impl.*;
+import com.telecom.service.interfaces.*;
 
 import java.util.Scanner;
 
@@ -14,24 +16,63 @@ import java.util.Scanner;
  */
 public class MainApp {
     public static void main(String[] args) {
-        // Console input
+        // --- DEPENDENCY INITIALIZATION ---
         Scanner sc = new Scanner(System.in);
-        // Repositories initialization
+
+        // Repositories
         UserRepo userRepo = new UserRepoImpl();
-        // Bootstrap code
-        BootstrapEngine bootstrapEngine = new BootstrapEngine(userRepo);
+        CustomerRepo customerRepo = new CustomerRepoImpl();
+        PlanRepo planRepo = new PlanRepoImpl();
+        SubscriptionRepo subscriptionRepo = new SubscriptionRepoImpl();
+        UsageRecordRepo usageRecordRepo = new UsageRecordRepoImpl();
+        InvoiceRepo invoiceRepo = new InvoiceRepoImpl();
+        FamilyRepo familyRepo = new FamilyRepoImpl();
+
+        // Bootstrap Engine
+        BootstrapEngine bootstrapEngine = new BootstrapEngine(userRepo, customerRepo, planRepo, subscriptionRepo, usageRecordRepo);
         bootstrapEngine.run();
-        // Services initialization
+
+        // Services
         UserService userService = new UserServiceImpl(userRepo);
-        // Controllers Initialization
+        CustomerService customerService = new CustomerServiceImpl(customerRepo);
+        PlanService planService = new PlanServiceImpl(planRepo);
+        SubscriptionService subscriptionService = new SubscriptionServiceImpl(subscriptionRepo);
+        BillingService billingService = new BillingServiceImpl(invoiceRepo);
+        AnalyticsService analyticsService = new AnalyticsServiceImpl();
+        FamilyService familyService = new FamilyServiceImpl(familyRepo);
+
+        // Controllers
         LoginController loginController = new LoginController(sc, userService);
+        PlanController planController = new PlanController(sc, planService);
+        AdminController adminController = new AdminController(sc, planService, customerService, userService, subscriptionService, planController);
+        CustomerController customerController = new CustomerController(sc, subscriptionService, planService, usageRecordRepo, invoiceRepo, billingService, familyService, customerService, userService);
 
-        // Test
+        // --- APPLICATION START ---
+        System.out.println("\nWelcome to the Telecom Billing & Analytics System");
 
-        try {
-            loginController.login();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+        while (true) {
+            try {
+                User user = loginController.login();
+                if (user == null) {
+                    System.out.println("Login failed. Exiting.");
+                    return;
+                }
+
+                // --- ROLE-BASED MENU ---
+                if (user.getRole() == Role.ADMIN) {
+                    adminController.showAdminMenu();
+                } else if (user.getRole() == Role.CUSTOMER) {
+                    customerController.showCustomerMenu(user);
+                }
+
+                System.out.println("Logout successful. Goodbye!");
+                break; // Exit the loop if logout is successful
+
+            } catch (Exception e) {
+                System.err.println("An unexpected error occurred: " + e.getMessage());
+                System.out.println("Please try again.");
+                // e.printStackTrace(); // Uncomment for debugging
+            }
         }
     }
 }

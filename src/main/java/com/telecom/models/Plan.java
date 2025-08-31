@@ -26,5 +26,6 @@ public class Plan {
     // Special rules
     private boolean weekendFreeVoice;
     private boolean rolloverAllowed;
+    private boolean isFamilyPlan;
     private double familyShareCap;// % of pooled data a single member can use
 }

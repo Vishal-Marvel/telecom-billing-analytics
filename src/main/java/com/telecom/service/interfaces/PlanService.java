@@ -5,7 +5,9 @@ import com.telecom.models.Plan;
 import java.util.List;
 
 public interface PlanService {
-    void addPlan(Plan plan);
+    Plan addPlan(Plan plan);
     Plan getPlan(String id);
     List<Plan> getAllPlans();
+    Plan updatePlan(Plan plan);
+    void deletePlan(String id);
 }

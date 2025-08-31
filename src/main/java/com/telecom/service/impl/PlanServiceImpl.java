@@ -14,8 +14,8 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
-    public void addPlan(Plan plan) {
-        repo.save(plan);
+    public Plan addPlan(Plan plan) {
+        return repo.save(plan);
     }
 
     @Override
@@ -26,5 +26,15 @@ public class PlanServiceImpl implements PlanService {
     @Override
     public List<Plan> getAllPlans() {
         return repo.findAll();
+    }
+
+    @Override
+    public Plan updatePlan(Plan plan) {
+        return repo.update(plan);
+    }
+
+    @Override
+    public void deletePlan(String id) {
+        repo.delete(id);
     }
 }

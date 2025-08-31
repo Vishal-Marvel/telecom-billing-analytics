@@ -7,12 +7,14 @@ import com.telecom.models.UsageRecord;
 
 import java.util.List;
 
-    public interface BillingService {
-        Invoice generateInvoice(Subscription subscription, Plan plan, List<UsageRecord> usageRecords);
+public interface BillingService {
+    Invoice generateInvoice(Subscription subscription, Plan plan, List<UsageRecord> memberUsage, List<UsageRecord> allUsage);
 
-        double rateUsage(UsageRecord usage, Plan plan);
+    double rateUsage(UsageRecord usage, Plan plan);
 
-        double calculateVoiceCharge(UsageRecord usage, Plan plan);
+    double calculateVoiceCharge(UsageRecord usage, Plan plan);
 
-        double applyNightDiscount(double amount, UsageRecord usage);
-    }
+    double applyNightDiscount(double amount, UsageRecord usage);
+
+    void payInvoice(String invoiceId);
+}

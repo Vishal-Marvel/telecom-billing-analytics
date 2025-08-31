@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class UsageRecord {
     private String subscriptionId;
+    private String familyId; // To link usage to a family group
     private LocalDateTime timestamp;
     private double data;
     private int voiceMinutes;

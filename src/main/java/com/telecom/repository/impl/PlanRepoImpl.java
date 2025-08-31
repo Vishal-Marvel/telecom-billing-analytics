@@ -9,8 +9,9 @@ public class PlanRepoImpl implements PlanRepo {
     private final Map<String, Plan> db = new HashMap<>();
 
     @Override
-    public void save(Plan plan) {
+    public Plan save(Plan plan) {
         db.put(plan.getId(), plan);
+        return plan;
     }
 
     @Override
@@ -26,5 +27,11 @@ public class PlanRepoImpl implements PlanRepo {
     @Override
     public void delete(String id) {
         db.remove(id);
+    }
+
+    @Override
+    public Plan update(Plan plan) {
+        db.put(plan.getId(), plan);
+        return plan;
     }
 }

@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InvoiceRepo {
-    void save(Invoice invoice);
+    Invoice save(Invoice invoice);
     Optional<Invoice> findById(String id);
     List<Invoice> findAll();
     List<Invoice> findBySubscriptionId(String subscriptionId);
     void delete(String id);
+    Invoice update(Invoice invoice);
 }

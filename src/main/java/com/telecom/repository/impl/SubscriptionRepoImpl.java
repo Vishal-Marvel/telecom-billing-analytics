@@ -10,7 +10,7 @@ public class SubscriptionRepoImpl implements SubscriptionRepo {
 
     @Override
     public void save(Subscription subscription) {
-        db.put(Subscription.getId(), subscription);
+        db.put(subscription.getId(), subscription);
     }
 
     @Override
