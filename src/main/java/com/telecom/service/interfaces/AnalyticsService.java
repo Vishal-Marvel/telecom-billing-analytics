@@ -1,7 +1,9 @@
 package com.telecom.service.interfaces;
 
 import com.telecom.models.Customer;
+import com.telecom.models.Invoice;
 import com.telecom.models.Plan;
+import com.telecom.models.UsageRecord;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,24 +11,9 @@ import java.util.Map;
 
 public interface AnalyticsService {
 
-    List<Customer> getTopNDataUsers(LocalDate start, LocalDate end, int n);
-
-    Map<Long, Double> getARPUByPlan(LocalDate start, LocalDate end);
-
-    Map<Long, OverageStats> getOverageDistribution(LocalDate start, LocalDate end);
-
-    List<Customer> getCreditRiskCustomers();
-
-    Map<Long, Plan> recommendHigherPlans(int overageThreshold, int months);
-
-    class OverageStats {
-        public final int count;
-        public final double total;
-        public final double average;
-        public OverageStats(int count, double total, double average) {
-            this.count = count;
-            this.total = total;
-            this.average = average;
-        }
-    }
+    List<Customer> topDataUsers(List<UsageRecord> usage, int n);
+    Map<String, Double> arpuByPlan(List<Invoice> invoices);
+    Map<String, Object> overageDistribution(List<Invoice> invoices);
+    List<Customer> detectCreditRisk(List<Invoice> invoices, List<Customer> customers);
+    Map<String, String> recommendPlans(List<Invoice> invoices, List<Plan> plans);
 }

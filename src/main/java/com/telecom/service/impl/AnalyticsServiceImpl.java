@@ -1,5 +1,7 @@
-java
-        package com.telecom.service.impl;
+package com.telecom.service.impl;
+
+
+
 
 import com.telecom.models.*;
 import com.telecom.repository.interfaces.*;
@@ -12,89 +14,58 @@ import java.util.stream.Collectors;
 
 public class AnalyticsServiceImpl implements AnalyticsService {
 
-    private final UsageRecordRepo usageRecordRepo;
-    private final InvoiceRepo invoiceRepo;
-    private final CustomerRepo customerRepo;
-    private final PlanRepo planRepo;
-    private final SubscriptionRepo subscriptionRepo;
-
-    public AnalyticsServiceImpl(
-            UsageRecordRepo usageRecordRepo,
-            InvoiceRepo invoiceRepo,
-            CustomerRepo customerRepo,
-            PlanRepo planRepo,
-            SubscriptionRepo subscriptionRepo) {
-        this.usageRecordRepo = usageRecordRepo;
-        this.invoiceRepo = invoiceRepo;
-        this.customerRepo = customerRepo;
-        this.planRepo = planRepo;
-        this.subscriptionRepo = subscriptionRepo;
-    }
-
-    // 1. Top N data users in a billing cycle
     @Override
-    public List<Customer> getTopNDataUsers(LocalDate start, LocalDate end, int n) {
-        // Group by subscriptionId, sum data, map to customerId
-        Map<String, Double> dataBySub = usageRecordRepo.findByDateRange(start, end).stream()
-                .collect(Collectors.groupingBy(
-                        UsageRecord::getSubscriptionId,
-                        Collectors.summingDouble(UsageRecord::getData)
-                ));
-
-        // Map subscriptionId to customerId, sum if customer has multiple subscriptions
-        Map<Long, Double> dataByCustomer = new HashMap<>();
-        for (Map.Entry<String, Double> entry : dataBySub.entrySet()) {
-            Subscription sub = subscriptionRepo.findById(entry.getKey());
-            if (sub != null) {
-                dataByCustomer.merge(sub.getCustomerId(), entry.getValue(), Double::sum);
-            }
-        }
-
-        return dataByCustomer.entrySet().stream()
-                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+    public List<Customer> topDataUsers(List<UsageRecord> usage, int n) {
+        return usage.stream()
+                .collect(Collectors.groupingBy(UsageRecord::getSubscriptionId,
+                        Collectors.summingDouble(UsageRecord::getData)))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                 .limit(n)
-                .map(e -> customerRepo.findById(e.getKey()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(e -> new Customer(e.getKey(), "User-" + e.getKey(), "demo@mail.com", null, false))
+                .toList();
     }
 
-    // 2. ARPU (Average Revenue Per User) by plan
     @Override
-    public Map<Long, Double> getARPUByPlan(LocalDate start, LocalDate end) {
-        List<Invoice> invoices = invoiceRepo.findByDateRange(start, end);
+    public Map<String, Double> arpuByPlan(List<Invoice> invoices) {
         return invoices.stream()
-                .collect(Collectors.groupingBy(
-                        Invoice::getPlanId,
-                        Collectors.averagingDouble(Invoice::getTotalAmount)
-                ));
+                .collect(Collectors.groupingBy(Invoice::getSubscriptionId,
+                        Collectors.averagingDouble(Invoice::getTotalAmount)));
     }
 
-    // 3. Overage distribution (count, total, average overage per plan)
     @Override
-    public Map<Long, OverageStats> getOverageDistribution(LocalDate start, LocalDate end) {
-        // This requires overage info, which is not present in UsageRecord.
-        // Placeholder: returns empty map.
-        return new HashMap<>();
+    public Map<String, Object> overageDistribution(List<Invoice> invoices) {
+        DoubleSummaryStatistics stats = invoices.stream()
+                .collect(Collectors.summarizingDouble(Invoice::getOverageCharges));
+        return Map.of(
+                "count", stats.getCount(),
+                "total", stats.getSum(),
+                "average", stats.getAverage()
+        );
     }
 
-    // 4. Credit risk detection: customers with invoices unpaid > 60 days
     @Override
-    public List<Customer> getCreditRiskCustomers() {
-        LocalDate now = LocalDate.now();
-        return invoiceRepo.findAll().stream()
-                .filter(inv -> !inv.isPaid() && ChronoUnit.DAYS.between(inv.getIssueDate(), now) > 60)
-                .map(Invoice::getCustomerId)
-                .distinct()
-                .map(customerRepo::findById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    public List<Customer> detectCreditRisk(List<Invoice> invoices, List<Customer> customers) {
+        // simple rule: unpaid invoices => credit risk
+        Set<String> riskySubs = invoices.stream()
+                .filter(inv -> !inv.isPaid())
+                .map(Invoice::getSubscriptionId)
+                .collect(Collectors.toSet());
+        return customers.stream()
+                .filter(c -> riskySubs.contains(c.getId()))
+                .toList();
     }
 
-    // 5. Plan recommendation engine: suggest higher plans if a subscriber pays frequent overages
     @Override
-    public Map<Long, Plan> recommendHigherPlans(int overageThreshold, int months) {
-        // This requires overage info, which is not present in UsageRecord.
-        // Placeholder: returns empty map.
-        return new HashMap<>();
+    public Map<String, String> recommendPlans(List<Invoice> invoices, List<Plan> plans) {
+        // simple recommendation: if overage > threshold, suggest higher rental plan
+        Map<String, String> recommendations = new HashMap<>();
+        invoices.forEach(inv -> {
+            if (inv.getOverageCharges() > 100) {
+                Plan higher = plans.stream().max(Comparator.comparingDouble(Plan::getMonthlyRental)).orElse(null);
+                if (higher != null) recommendations.put(inv.getSubscriptionId(), higher.getName());
+            }
+        });
+        return recommendations;
     }
 }
