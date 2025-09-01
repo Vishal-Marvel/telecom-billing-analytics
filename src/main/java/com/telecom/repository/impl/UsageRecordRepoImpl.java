@@ -27,6 +27,13 @@ public class UsageRecordRepoImpl implements UsageRecordRepo {
     }
 
     @Override
+    public List<UsageRecord> findByFamilyId(String familyId) {
+        return records.stream()
+                .filter(r -> r.getFamilyId().equals(familyId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<UsageRecord> findBySubscriptionId(String subscriptionId) {
         return records.stream()
                 .filter(r -> r.getSubscriptionId().equals(subscriptionId))

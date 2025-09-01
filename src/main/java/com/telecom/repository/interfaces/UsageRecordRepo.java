@@ -9,6 +9,7 @@ public interface UsageRecordRepo {
     void save(UsageRecord record);
 
     UsageRecord findById(String subscriptionId, java.time.LocalDateTime timestamp);
+    List<UsageRecord> findByFamilyId(String familyId);
 
     List<UsageRecord> findBySubscriptionId(String subscriptionId);
 

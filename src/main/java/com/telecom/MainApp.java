@@ -29,7 +29,7 @@ public class MainApp {
         FamilyRepo familyRepo = new FamilyRepoImpl();
 
         // Bootstrap Engine
-        BootstrapEngine bootstrapEngine = new BootstrapEngine(userRepo, customerRepo, planRepo, subscriptionRepo, usageRecordRepo);
+        BootstrapEngine bootstrapEngine = new BootstrapEngine();
         bootstrapEngine.run();
 
         // Services
