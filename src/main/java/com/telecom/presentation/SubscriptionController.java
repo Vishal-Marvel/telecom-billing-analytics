@@ -1,5 +1,6 @@
 package com.telecom.presentation;
 
+import com.telecom.exceptions.InvalidPhoneNumberFormatException;
 import com.telecom.models.Family;
 import com.telecom.models.Plan;
 import com.telecom.models.Subscription;
@@ -62,6 +63,13 @@ public class SubscriptionController {
         Plan plan = planService.getPlan(planId);
         System.out.print("Enter new Phone Number: ");
         String phone = sc.nextLine();
+
+        if (!phone.matches("^[6789]\\d{9}$")) {
+            System.out.println("Invalid phone number. Must be 10 digits starting with 7, 8, or 9.");
+        } else {
+            throw new InvalidPhoneNumberFormatException("Valid phone number: " + phone);
+        }
+
         String subId = "S" + UUID.randomUUID().toString().substring(0, 3);
         String familyId = null;
         if (plan.isFamilyPlan()) {
