@@ -8,6 +8,8 @@ import com.telecom.utils.TaxUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,8 @@ public class BillingServiceImpl implements BillingService {
         Invoice invoice = new Invoice();
         invoice.setSubscriptionId(subscription.getId());
         invoice.setBaseRental(baseRental);
+        invoice.setBillingCycle(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+
         invoice.setOverageCharges(usageCharges);
         invoice.setDiscounts(discounts);
         invoice.setTaxes(taxes);
@@ -98,6 +102,7 @@ public class BillingServiceImpl implements BillingService {
         invoice.setSubscriptionId(subscription.getId());
         invoice.setBaseRental(baseRental);
         invoice.setOverageCharges(overageCharges + voiceAndSmsOverage);
+        invoice.setBillingCycle(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
         // Add fairness surcharge to discounts field for now for visibility
         invoice.setDiscounts(-fairnessSurcharge); // Negative discount is a charge
         invoice.setTaxes(taxes);

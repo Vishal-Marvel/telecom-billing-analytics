@@ -19,6 +19,11 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    public Family createFamily(Family family) {
+        return familyRepo.save(family);
+    }
+
+    @Override
     public Family getFamilyById(String familyId) {
             return familyRepo.findByFamilyId(familyId).orElse(null);
         

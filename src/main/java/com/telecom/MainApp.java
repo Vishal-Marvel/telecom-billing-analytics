@@ -36,10 +36,10 @@ public class MainApp {
         UserService userService = new UserServiceImpl(userRepo);
         CustomerService customerService = new CustomerServiceImpl(customerRepo);
         PlanService planService = new PlanServiceImpl(planRepo);
-        SubscriptionService subscriptionService = new SubscriptionServiceImpl(subscriptionRepo);
+        FamilyService familyService = new FamilyServiceImpl(familyRepo);
+        SubscriptionService subscriptionService = new SubscriptionServiceImpl(subscriptionRepo, familyService);
         BillingService billingService = new BillingServiceImpl(invoiceRepo);
         AnalyticsService analyticsService = new AnalyticsServiceImpl();
-        FamilyService familyService = new FamilyServiceImpl(familyRepo);
 
         // Controllers
         LoginController loginController = new LoginController(sc, userService);

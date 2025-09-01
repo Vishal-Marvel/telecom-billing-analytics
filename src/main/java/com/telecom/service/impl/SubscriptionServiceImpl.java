@@ -1,19 +1,23 @@
 package com.telecom.service.impl;
 
 import com.telecom.exceptions.SubscriptionException;
+import com.telecom.models.Family;
 import com.telecom.models.Subscription;
 import com.telecom.repository.interfaces.SubscriptionRepo;
+import com.telecom.service.interfaces.FamilyService;
 import com.telecom.service.interfaces.SubscriptionService;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+@RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepo repo;
+    private final FamilyService familyService;
 
-    public SubscriptionServiceImpl(SubscriptionRepo repo) {
-        this.repo = repo;
-    }
 
     @Override
     public void addSubscription(Subscription subscription) throws SubscriptionException {
@@ -67,6 +71,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription sub = getSubscription(subscriptionId);
         if (sub.isMnpPending()) throw new RuntimeException("Cannot change plan during MNP.");
         sub.setPlanId(newPlanId);
+        String familyId = UUID.randomUUID().toString().substring(0, 3);
+        familyService.createFamily(Family.builder()
+                .familyId("F"+familyId)
+                .build());
+        familyService.addFamilyMember(familyId, sub.getCustomerId());
+        sub.setFamilyId(familyId);
         repo.update(sub);
     }
 }

@@ -13,7 +13,7 @@ public class InvoiceRepoImpl implements InvoiceRepo {
     @Override
     public Invoice save(Invoice invoice) {
         if (invoice.getId() == null) {
-            invoice.setId(UUID.randomUUID().toString()); // Generate an ID if one doesn't exist
+            invoice.setId("I"+UUID.randomUUID().toString().substring(0,3)); // Generate an ID if one doesn't exist
         }
         db.put(invoice.getId(), invoice);
         return invoice;
