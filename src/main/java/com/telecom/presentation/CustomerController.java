@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -324,10 +325,15 @@ public class CustomerController {
             }
 
             System.out.println("\n--- Usage History for " + selectedSub.getId() + " ---");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
             for (UsageRecord record : usageRecords) {
+                String formattedTime = record.getTimestamp().format(formatter);
+
                 System.out.printf("Timestamp: %s, Data: %.2f MB, Voice: %d mins, SMS: %d%n",
-                        record.getTimestamp(), record.getData(), record.getVoiceMinutes(), record.getSmsCount());
+                        formattedTime, record.getData(), record.getVoiceMinutes(), record.getSmsCount());
             }
+
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter a valid number.");
         } catch (Exception e) {
