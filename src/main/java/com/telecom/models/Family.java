@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -13,5 +14,5 @@ import java.util.List;
 @Builder
 public class Family {
     private String familyId;
-    private List<String> customerIds;
+    private List<String> customerIds = new ArrayList<>();
 }

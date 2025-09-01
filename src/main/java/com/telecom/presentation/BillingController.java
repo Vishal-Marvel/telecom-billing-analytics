@@ -7,6 +7,7 @@ import com.telecom.service.interfaces.PlanService;
 import com.telecom.service.interfaces.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
@@ -23,7 +24,7 @@ public class BillingController {
 
     /**
      * Main CLI menu for the billing cycle.
-     * 
+     *
      * @param user The currently authenticated user.
      */
     public void runBillingCycle(User user) {
@@ -53,21 +54,41 @@ public class BillingController {
 
     /**
      * Prints a formatted invoice to the console.
-     * 
+     *
      * @param invoice The invoice to print.
      */
     public void printInvoice(Invoice invoice) {
+        System.out.println("===================================");
+        System.out.println("            CUSTOMER INVOICE       ");
+        System.out.println("===================================");
+
+        // Header
+        System.out.printf("Invoice ID       : %s%n", invoice.getId());
+        System.out.printf("Subscription ID  : %s%n", invoice.getSubscriptionId());
+        System.out.printf("Billing Cycle    : %s%n",
+                invoice.getBillingCycle().format(DateTimeFormatter.ofPattern("MMMM yyyy")));
         System.out.println("-----------------------------------");
-        System.out.printf("Invoice for Subscription ID: %s%n", invoice.getSubscriptionId());
-        System.out.printf("  Base Rental: $%.2f%n", invoice.getBaseRental());
-        System.out.printf("  Overage Charges: $%.2f%n", invoice.getOverageCharges());
-        if (invoice.getDiscounts() < 0) { // Negative discount is a surcharge
-            System.out.printf("  Family Fairness Surcharge: $%.2f%n", -invoice.getDiscounts());
+
+        // Charges Breakdown
+        System.out.printf("Base Rental      : $%.2f%n", invoice.getBaseRental());
+        System.out.printf("Overage Charges  : $%.2f%n", invoice.getOverageCharges());
+        System.out.printf("Roaming Charges  : $%.2f%n", invoice.getRoamingCharges());
+
+        if (invoice.getDiscounts() < 0) {
+            System.out.printf("Surcharge        : $%.2f%n", -invoice.getDiscounts());
+        } else if (invoice.getDiscounts() > 0) {
+            System.out.printf("Discounts        : -$%.2f%n", invoice.getDiscounts());
         }
-        System.out.printf("  Taxes (GST): $%.2f%n", invoice.getTaxes());
-        System.out.println("  ---------------------------------");
-        System.out.printf("  Total Amount: $%.2f%n", invoice.getTotalAmount());
-        System.out.printf("  Status: %s%n", invoice.isPaid() ? "Paid" : "Unpaid");
+
+        System.out.printf("Taxes (GST)      : $%.2f%n", invoice.getTaxes());
+
         System.out.println("-----------------------------------");
+
+        // Total
+        System.out.printf("TOTAL AMOUNT     : $%.2f%n", invoice.getTotalAmount());
+        System.out.printf("Status           : %s%n", invoice.isPaid() ? "Paid ✅" : "Unpaid ❌");
+
+        System.out.println("===================================");
+        System.out.println();
     }
 }

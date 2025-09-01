@@ -71,9 +71,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription sub = getSubscription(subscriptionId);
         if (sub.isMnpPending()) throw new RuntimeException("Cannot change plan during MNP.");
         sub.setPlanId(newPlanId);
-        String familyId = UUID.randomUUID().toString().substring(0, 3);
+        String familyId = "F" + UUID.randomUUID().toString().substring(0, 3);
         familyService.createFamily(Family.builder()
-                .familyId("F"+familyId)
+                .familyId(familyId)
+                .customerIds(new ArrayList<>())
+
                 .build());
         familyService.addFamilyMember(familyId, sub.getCustomerId());
         sub.setFamilyId(familyId);

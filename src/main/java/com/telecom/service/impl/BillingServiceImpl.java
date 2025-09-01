@@ -4,6 +4,7 @@ import com.telecom.exceptions.BillingException;
 import com.telecom.models.*;
 import com.telecom.repository.interfaces.InvoiceRepo;
 import com.telecom.service.interfaces.BillingService;
+import com.telecom.utils.Constants;
 import com.telecom.utils.TaxUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -18,8 +19,6 @@ public class BillingServiceImpl implements BillingService {
 
     private final InvoiceRepo invoiceRepo;
 
-    private static final double FAMILY_FAIRNESS_SURCHARGE = 50.0;
-    private static final double FAMILY_SHARE_CAP_THRESHOLD = 0.6; // 60%
 
     @Override
     public Invoice generateInvoice(Subscription subscription, Plan plan, List<UsageRecord> memberUsage, List<UsageRecord> allUsage) {
@@ -80,8 +79,8 @@ public class BillingServiceImpl implements BillingService {
 
         // --- Family Fairness Surcharge ---
         double memberDataUsage = memberUsage.stream().mapToDouble(UsageRecord::getData).sum();
-        if (memberDataUsage > (familyDataAllowance * FAMILY_SHARE_CAP_THRESHOLD)) {
-            fairnessSurcharge = FAMILY_FAIRNESS_SURCHARGE;
+        if (memberDataUsage > (familyDataAllowance * Constants.FAMILY_SHARE_CAP_THRESHOLD)) {
+            fairnessSurcharge = Constants.FAMILY_FAIRNESS_SURCHARGE;
         }
 
         // --- Voice and SMS Overage (Individual) ---

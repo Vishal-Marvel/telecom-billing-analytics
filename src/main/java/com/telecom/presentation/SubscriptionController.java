@@ -1,15 +1,19 @@
 package com.telecom.presentation;
 
+import com.telecom.models.Family;
 import com.telecom.models.Plan;
 import com.telecom.models.Subscription;
 import com.telecom.models.User;
+import com.telecom.service.interfaces.FamilyService;
 import com.telecom.service.interfaces.PlanService;
 import com.telecom.service.interfaces.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 /**
  * Console viewer for all subscription-based operations.
@@ -19,9 +23,11 @@ public class SubscriptionController {
     private final Scanner sc;
     private final SubscriptionService subscriptionService;
     private final PlanService planService; // Needed to show plan details
+    private final FamilyService familyService;
 
     /**
      * Displays all subscriptions for the logged-in user.
+     *
      * @param user The currently authenticated user.
      */
     public void showCustomerSubscriptions(User user) {
@@ -45,6 +51,7 @@ public class SubscriptionController {
 
     /**
      * CLI to add a new subscription for the logged-in user.
+     *
      * @param user The currently authenticated user.
      */
     public void addNewSubscription(User user) {
@@ -52,10 +59,20 @@ public class SubscriptionController {
         new PlanController(sc, planService).showAllPlans(); // Show available plans
         System.out.print("Enter Plan ID to subscribe to: ");
         String planId = sc.nextLine();
+        Plan plan = planService.getPlan(planId);
         System.out.print("Enter new Phone Number: ");
         String phone = sc.nextLine();
-        System.out.print("Enter Subscription ID: ");
-        String subId = sc.nextLine();
+        String subId = "S" + UUID.randomUUID().toString().substring(0, 3);
+        String familyId = null;
+        if (plan.isFamilyPlan()) {
+            familyId = "F" + UUID.randomUUID().toString().substring(0, 3);
+            familyService.createFamily(Family.builder()
+                    .customerIds(new ArrayList<>())
+                    .familyId(familyId)
+                    .build());
+            familyService.addFamilyMember(familyId, user.getCustomerId());
+        }
+
 
         Subscription newSubscription = Subscription.builder()
                 .id(subId)
@@ -63,6 +80,7 @@ public class SubscriptionController {
                 .phoneNumber(phone)
                 .planId(planId)
                 .startDate(LocalDate.now())
+                .familyId(familyId)
                 .build();
 
         subscriptionService.addSubscription(newSubscription);
@@ -71,6 +89,7 @@ public class SubscriptionController {
 
     /**
      * CLI to initiate an MNP port-out request.
+     *
      * @param user The currently authenticated user.
      */
     public void initiateMnp(User user) {

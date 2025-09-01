@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 /**
  * Console viewer for all plan-based operations
@@ -38,8 +39,7 @@ public class PlanController {
     public void addNewPlan() {
         try {
             System.out.println("\n--- Add a New Plan ---");
-            System.out.print("Enter Plan ID: ");
-            String id = sc.nextLine();
+            String id = "P" + UUID.randomUUID().toString().substring(0,3);
             System.out.print("Enter Plan Name: ");
             String name = sc.nextLine();
             System.out.print("Enter Monthly Rental: ");

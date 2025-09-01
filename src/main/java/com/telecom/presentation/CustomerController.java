@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.naming.NameNotFoundException;
 
@@ -204,12 +205,21 @@ public class CustomerController {
             }
             Subscription selectedSub = subscriptions.get(subChoice - 1);
 
-            System.out.print("Enter usage type (1. Data (MB), 2. Voice (Mins), 3. SMS): ");
-            int usageType = Integer.parseInt(sc.nextLine());
+            // Pick random usage type (1=Data, 2=Voice, 3=SMS)
+            int usageType = ThreadLocalRandom.current().nextInt(1, 4);
 
-            System.out.print("Enter amount: ");
-            double amount = Double.parseDouble(sc.nextLine());
+            // Generate random amount based on type
+            double amount = switch (usageType) {
+                case 1 -> // Data in MB
+                        ThreadLocalRandom.current().nextDouble(50, 2048); // between 50MB and 2GB
+                case 2 -> // Voice minutes
+                        ThreadLocalRandom.current().nextInt(1, 300); // between 1 and 300 minutes
+                case 3 -> // SMS count
+                        ThreadLocalRandom.current().nextInt(1, 100); // between 1 and 100 SMS
+                default -> 0;
+            };
 
+            // Build usage record
             UsageRecord.UsageRecordBuilder usageBuilder = UsageRecord.builder()
                     .subscriptionId(selectedSub.getId())
                     .familyId(selectedSub.getFamilyId())
@@ -218,16 +228,16 @@ public class CustomerController {
             switch (usageType) {
                 case 1:
                     usageBuilder.data(amount);
+                    System.out.println("Generated Data Usage: " + amount + " MB");
                     break;
                 case 2:
                     usageBuilder.voiceMinutes((int) amount);
+                    System.out.println("Generated Voice Usage: " + (int) amount + " minutes");
                     break;
                 case 3:
                     usageBuilder.smsCount((int) amount);
+                    System.out.println("Generated SMS Usage: " + (int) amount + " messages");
                     break;
-                default:
-                    System.out.println("Invalid usage type.");
-                    return;
             }
 
             usageRecordRepo.save(usageBuilder.build());

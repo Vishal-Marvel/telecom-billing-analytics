@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.UUID;
 
 /**
  * Console viewer for all Administrator-specific operations.
@@ -200,8 +201,8 @@ public class AdminController {
     private void createNewCustomer() {
         try {
             System.out.println("\n--- Create New Customer ---");
-            System.out.print("Enter Customer ID: ");
-            String customerId = sc.nextLine();
+
+            String customerId = "I"+UUID.randomUUID().toString().substring(0,3);
             System.out.print("Enter Customer Name: ");
             String name = sc.nextLine();
             System.out.print("Enter Customer Email: ");
