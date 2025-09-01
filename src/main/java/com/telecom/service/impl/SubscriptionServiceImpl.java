@@ -1,5 +1,6 @@
 package com.telecom.service.impl;
 
+import com.telecom.exceptions.SubscriptionException;
 import com.telecom.models.Subscription;
 import com.telecom.repository.interfaces.SubscriptionRepo;
 import com.telecom.service.interfaces.SubscriptionService;
@@ -15,7 +16,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public void addSubscription(Subscription subscription) {
+    public void addSubscription(Subscription subscription) throws SubscriptionException {
         repo.save(subscription);
     }
 
@@ -27,6 +28,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public List<Subscription> getCustomerSubscriptions(String customerId) {
         return repo.findByCustomerId(customerId);
+    }
+
+    @Override
+    public List<Subscription> getSubscriptionWithMNP() {
+        return repo.findSubscriptionsWithMNP();
     }
 
     @Override

@@ -1,4 +1,7 @@
 package com.telecom.exceptions;
 
-public class PlanNotFoundException {
+public class PlanNotFoundException extends RuntimeException {
+  public PlanNotFoundException(String message) {
+    super(message);
+  }
 }

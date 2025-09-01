@@ -1,5 +1,6 @@
 package com.telecom.presentation;
 
+import com.telecom.exceptions.InvalidChoiceException;
 import com.telecom.models.Plan;
 import com.telecom.service.interfaces.PlanService;
 import lombok.RequiredArgsConstructor;
@@ -69,9 +70,7 @@ public class PlanController {
             planService.addPlan(newPlan);
             System.out.println("Plan added successfully!");
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            throw new InvalidChoiceException("Invalid input. Please enter a valid number.");
         }
     }
 
@@ -104,9 +103,7 @@ public class PlanController {
             planService.updatePlan(plan);
             System.out.println("Plan updated successfully!");
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            throw new InvalidChoiceException("Invalid input. Please enter a valid number.");
         }
     }
 

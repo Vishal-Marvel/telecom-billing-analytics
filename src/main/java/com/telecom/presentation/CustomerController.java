@@ -1,5 +1,7 @@
 package com.telecom.presentation;
 
+import com.telecom.exceptions.InvalidChoiceException;
+import com.telecom.exceptions.PlanNotFoundException;
 import com.telecom.models.*;
 import com.telecom.repository.interfaces.InvoiceRepo;
 import com.telecom.repository.interfaces.UsageRecordRepo;
@@ -27,10 +29,12 @@ public class CustomerController {
     private final FamilyService familyService;
     private final CustomerService customerService;
     private final BillingController billingController;
+    private final SubscriptionController subscriptionController;
+    private final BillingService billingService;
 
     /**
      * Main menu for Customer users.
-     * 
+     *
      * @param user The currently authenticated user.
      */
     public void showCustomerMenu(User user) {
@@ -45,14 +49,15 @@ public class CustomerController {
                 System.out.println("6. Pay a Bill");
                 System.out.println("7. Add Family Member");
                 System.out.println("8. View My Family Members");
+                System.out.println("9. Initiate a MNP");
+                System.out.println("10. Add a new Subscription");
                 System.out.println("0. Logout");
                 System.out.print("Select an option: ");
                 int choice = Integer.parseInt(sc.nextLine());
 
                 switch (choice) {
                     case 1:
-                        new SubscriptionController(sc, subscriptionService, planService)
-                                .showCustomerSubscriptions(user);
+                        subscriptionController.showCustomerSubscriptions(user);
                         break;
                     case 2:
                         addUsage(user);
@@ -74,6 +79,12 @@ public class CustomerController {
                         break;
                     case 8:
                         viewMyFamilyMembers(user);
+                        break;
+                    case 9:
+                        subscriptionController.initiateMnp(user);
+                        break;
+                    case 10:
+                        subscriptionController.addNewSubscription(user);
                         break;
                     case 0:
                         return;
@@ -247,8 +258,7 @@ public class CustomerController {
             System.out.print("Select a subscription to change the plan for: ");
             int subChoice = Integer.parseInt(sc.nextLine());
             if (subChoice < 1 || subChoice > subscriptions.size()) {
-                System.out.println("Invalid choice.");
-                return;
+                throw new InvalidChoiceException("Invalid choice.");
             }
             Subscription selectedSub = subscriptions.get(subChoice - 1);
 
@@ -259,8 +269,7 @@ public class CustomerController {
 
             Plan newPlan = planService.getPlan(newPlanId);
             if (newPlan == null) {
-                System.out.println("Plan not found.");
-                return;
+                throw new PlanNotFoundException("Plan not found.");
             }
 
             subscriptionService.changePlan(selectedSub.getId(), newPlan.getId());
@@ -374,7 +383,7 @@ public class CustomerController {
                         .stream().filter(inv -> !inv.isPaid()).toList());
             }
 
-            if (unpaidInvoices.size() == 0) {
+            if (unpaidInvoices.isEmpty()) {
                 System.out.println("You have no unpaid bills.");
                 return;
             }
@@ -395,12 +404,10 @@ public class CustomerController {
                     .orElse(null);
 
             if (selectedInvoice == null) {
-                System.out.println("Invoice not found or it is already paid.");
-                return;
+                throw new InvalidChoiceException("Invoice not found or it is already paid.");
             }
 
-            selectedInvoice.setPaid(true);
-            invoiceRepo.update(selectedInvoice);
+            billingService.payInvoice(selectedInvoice.getId());
 
             System.out.println("Bill paid successfully.");
         } catch (Exception e) {

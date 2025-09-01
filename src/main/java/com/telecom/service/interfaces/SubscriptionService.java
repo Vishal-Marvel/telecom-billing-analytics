@@ -9,7 +9,7 @@ public interface SubscriptionService {
     void addSubscription(Subscription subscription);
     Subscription getSubscription(String id);
     List<Subscription> getCustomerSubscriptions(String customerId);
-
+    List<Subscription> getSubscriptionWithMNP();
     void requestMNP(String subscriptionId, String targetOperator);
     void completeMNP(String subscriptionId);
     void cancelMNP(String subscriptionId);

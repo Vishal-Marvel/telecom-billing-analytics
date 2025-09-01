@@ -1,5 +1,6 @@
 package com.telecom.service.impl;
 
+import com.telecom.exceptions.BillingException;
 import com.telecom.models.*;
 import com.telecom.repository.interfaces.InvoiceRepo;
 import com.telecom.service.interfaces.BillingService;
@@ -60,7 +61,7 @@ public class BillingServiceImpl implements BillingService {
         // --- Data Overage Calculation (Pooled) ---
         List<UsageRecord> familyUsage = allUsage.stream()
                 .filter(u -> subscription.getFamilyId().equals(u.getFamilyId()))
-                .collect(Collectors.toList());
+                .toList();
 
         double totalFamilyDataUsage = familyUsage.stream().mapToDouble(UsageRecord::getData).sum();
         double familyDataAllowance = plan.getDataAllowanceMb();
@@ -168,7 +169,7 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public void payInvoice(String invoiceId) {
         Invoice invoice = invoiceRepo.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+                .orElseThrow(() -> new BillingException("Invoice not found"));
         invoice.setPaid(true);
         invoiceRepo.update(invoice);
     }

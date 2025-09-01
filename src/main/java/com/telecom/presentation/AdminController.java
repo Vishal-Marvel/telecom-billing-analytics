@@ -1,5 +1,6 @@
 package com.telecom.presentation;
 
+import com.telecom.exceptions.InvalidChoiceException;
 import com.telecom.models.Customer;
 import com.telecom.models.Plan;
 import com.telecom.models.Subscription;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -40,18 +42,33 @@ public class AdminController {
                 System.out.println("3. View All Customers");
                 System.out.println("4. View Customer Details");
                 System.out.println("5. View Analytics");
+                System.out.println("6. Complete The MNP");
                 System.out.println("0. Logout");
                 System.out.print("Select an option: ");
                 int choice = Integer.parseInt(sc.nextLine());
 
                 switch (choice) {
-                    case 1: managePlans(); break;
-                    case 2: createNewCustomer(); break;
-                    case 3: viewAllCustomers(); break;
-                    case 4: viewCustomerDetails(); break;
-                    case 5: analyticsController.showAnalyticsMenu(); break;
-                    case 0: return;
-                    default: System.out.println("Invalid option. Please try again.");
+                    case 1:
+                        managePlans();
+                        break;
+                    case 2:
+                        createNewCustomer();
+                        break;
+                    case 3:
+                        viewAllCustomers();
+                        break;
+                    case 4:
+                        viewCustomerDetails();
+                        break;
+                    case 5:
+                        analyticsController.showAnalyticsMenu();
+                        break;
+                    case 6:
+                        checkMNPRequest();
+                    case 0:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a number.");
@@ -59,6 +76,40 @@ public class AdminController {
                 System.out.println("An error occurred: " + e.getMessage());
             }
         }
+    }
+
+    private void checkMNPRequest() {
+        System.out.println("\n --- Subscriptions with MNP ---");
+        List<Subscription> subscriptionsWithMNP = subscriptionService.getSubscriptionWithMNP();
+        for (Subscription sub : subscriptionsWithMNP) {
+            Plan plan = planService.getPlan(sub.getPlanId());
+            System.out.printf("    - Subscription ID: %s%n", sub.getId());
+            System.out.printf("      Phone Number: %s%n", sub.getPhoneNumber());
+            System.out.printf("      Plan: %s (%.2f/month)%n", plan.getName(), plan.getMonthlyRental());
+            System.out.printf("      Start Date: %s%n", sub.getStartDate());
+            System.out.printf("      Customer Id: %s\n", sub.getCustomerId());
+        }
+        System.out.print("Select the Subscription: ");
+        String subscriptionId = sc.nextLine();
+        if (subscriptionsWithMNP.stream().noneMatch(s -> Objects.equals(s.getId(), subscriptionId))) {
+            throw new InvalidChoiceException("Subscription with selected Id Not Found");
+        }
+        System.out.print("\nDo you want to Complete this request or Cancel this request: (T/F)");
+        String choice = sc.nextLine();
+
+        if (choice.equals("T")) {
+            subscriptionService.completeMNP(subscriptionId);
+            System.out.println("Subscription MNP request Completed");
+        } else if (choice.equals("F")) {
+            subscriptionService.cancelMNP(subscriptionId);
+            System.out.println("Subscription MNP request Cancelled");
+
+        } else {
+            throw new InvalidChoiceException("Invalid Choice");
+
+        }
+
+
     }
 
     private void viewCustomerDetails() {
@@ -117,17 +168,27 @@ public class AdminController {
                 int choice = Integer.parseInt(sc.nextLine());
 
                 switch (choice) {
-                    case 1: planController.showAllPlans(); break;
-                    case 2: planController.addNewPlan(); break;
-                    case 3: planController.updateExistingPlan(); break;
-                    case 4: planController.deleteExistingPlan(); break;
-                    case 0: return;
-                    default: System.out.println("Invalid option. Please try again.");
+                    case 1:
+                        planController.showAllPlans();
+                        break;
+                    case 2:
+                        planController.addNewPlan();
+                        break;
+                    case 3:
+                        planController.updateExistingPlan();
+                        break;
+                    case 4:
+                        planController.deleteExistingPlan();
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                throw new InvalidChoiceException("Invalid input. Please enter a valid number.");
             } catch (Exception e) {
-                System.out.println("An error occurred: " + e.getMessage());
+                System.err.println("An error occurred: " + e.getMessage());
             }
         }
     }
@@ -189,7 +250,7 @@ public class AdminController {
                     System.out.println("Subscription added successfully!");
                     break; // Exit the loop if successful
                 } catch (Exception e) {
-                    System.out.println("An error occurred while assigning the plan: " + e.getMessage());
+                    System.err.println("An error occurred while assigning the plan: " + e.getMessage());
                     System.out.println("Please try again.");
                 }
             }

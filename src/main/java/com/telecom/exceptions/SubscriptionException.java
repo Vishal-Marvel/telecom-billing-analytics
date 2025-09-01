@@ -1,4 +1,7 @@
 package com.telecom.exceptions;
 
-public class SubscriptionException {
+public class SubscriptionException extends RuntimeException {
+  public SubscriptionException(String message) {
+    super(message);
+  }
 }

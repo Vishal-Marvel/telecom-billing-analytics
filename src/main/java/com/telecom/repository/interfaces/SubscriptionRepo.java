@@ -10,5 +10,6 @@ public interface SubscriptionRepo {
     Optional<Subscription> findById(String id);
     List<Subscription> findAll();
     List<Subscription> findByCustomerId(String customerId);
+    List<Subscription> findSubscriptionsWithMNP();
     void delete(String id);
 }
