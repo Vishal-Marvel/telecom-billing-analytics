@@ -7,6 +7,7 @@ import com.telecom.presentation.BillingController;
 import com.telecom.repository.impl.*;
 import com.telecom.repository.interfaces.*;
 import com.telecom.service.impl.BillingServiceImpl;
+import com.telecom.service.interfaces.BillingService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
@@ -18,7 +19,15 @@ import java.util.function.Supplier;
 /**
  * Initializes the in-memory database with sample data for demonstration.
  */
+@RequiredArgsConstructor
 public class BootstrapEngine {
+
+    private final UserRepo userRepo;
+    private final PlanRepo planRepo;
+    private final CustomerRepo customerRepo;
+    private final SubscriptionRepo subscriptionRepo;
+    private final UsageRecordRepo usageRecordRepo;
+    private final BillingService billingService;
 
     public void run() {
         System.out.println("Bootstrapping data...");
@@ -42,10 +51,10 @@ public class BootstrapEngine {
                 .voiceAllowanceMin(100).smsAllowance(50).isFamilyPlan(false).dataOverageRate(0.25).voiceOverageRate(0.15)
                 .smsOverageRate(0.10).build();
 
-        new PlanRepoImpl().save(individualPlan);
-        new PlanRepoImpl().save(familyPlan);
-        new PlanRepoImpl().save(premiumPlan);
-        new PlanRepoImpl().save(studentPlan);
+        planRepo.save(individualPlan);
+        planRepo.save(familyPlan);
+        planRepo.save(premiumPlan);
+        planRepo.save(studentPlan);
 
         // --- Create Customers ---
         Customer cust1 = new Customer("C" + getUUID.get(), "Alice", "alice@email.com", null, false);
@@ -54,20 +63,20 @@ public class BootstrapEngine {
         Customer cust4 = new Customer("C" + getUUID.get(), "Diana", "diana@email.com", null, false);
         Customer cust5 = new Customer("C" + getUUID.get(), "Ethan", "ethan@email.com", null, false);
 
-        new CustomerRepoImpl().save(cust1);
-        new CustomerRepoImpl().save(cust2);
-        new CustomerRepoImpl().save(cust3);
-        new CustomerRepoImpl().save(cust4);
-        new CustomerRepoImpl().save(cust5);
+        customerRepo.save(cust1);
+        customerRepo.save(cust2);
+        customerRepo.save(cust3);
+        customerRepo.save(cust4);
+        customerRepo.save(cust5);
 
         // --- Users ---
 
-        new UserRepoImpl().createUser(User.builder().username("admin").password("admin").role(Role.ADMIN).build());
-        new UserRepoImpl().createUser(User.builder().username("alice").password("pass").role(Role.CUSTOMER).customerId(cust1.getId()).build());
-        new UserRepoImpl().createUser(User.builder().username("bob").password("pass").role(Role.CUSTOMER).customerId(cust2.getId()).build());
-        new UserRepoImpl().createUser(User.builder().username("charlie").password("pass").role(Role.CUSTOMER).customerId(cust3.getId()).build());
-        new UserRepoImpl().createUser(User.builder().username("diana").password("pass").role(Role.CUSTOMER).customerId(cust4.getId()).build());
-        new UserRepoImpl().createUser(User.builder().username("ethan").password("pass").role(Role.CUSTOMER).customerId(cust5.getId()).build());
+        userRepo.createUser(User.builder().username("admin").password("admin").role(Role.ADMIN).build());
+        userRepo.createUser(User.builder().username("alice").password("pass").role(Role.CUSTOMER).customerId(cust1.getId()).build());
+        userRepo.createUser(User.builder().username("bob").password("pass").role(Role.CUSTOMER).customerId(cust2.getId()).build());
+        userRepo.createUser(User.builder().username("charlie").password("pass").role(Role.CUSTOMER).customerId(cust3.getId()).build());
+        userRepo.createUser(User.builder().username("diana").password("pass").role(Role.CUSTOMER).customerId(cust4.getId()).build());
+        userRepo.createUser(User.builder().username("ethan").password("pass").role(Role.CUSTOMER).customerId(cust5.getId()).build());
 
         // --- Subscriptions ---
         String familyId1 = "F" + getUUID.get();
@@ -94,69 +103,65 @@ public class BootstrapEngine {
         Subscription sub7 = Subscription.builder().id("S" + getUUID.get()).customerId(cust5.getId()).planId(familyPlan.getId()).phoneNumber("9876543216")
                 .familyId(familyId2).startDate(LocalDate.now().minusWeeks(5)).build();
 
-        new SubscriptionRepoImpl().save(sub1);
-        new SubscriptionRepoImpl().save(sub2);
-        new SubscriptionRepoImpl().save(sub3);
-        new SubscriptionRepoImpl().save(sub4);
-        new SubscriptionRepoImpl().save(sub5);
-        new SubscriptionRepoImpl().save(sub6);
-        new SubscriptionRepoImpl().save(sub7);
+        subscriptionRepo.save(sub1);
+        subscriptionRepo.save(sub2);
+        subscriptionRepo.save(sub3);
+        subscriptionRepo.save(sub4);
+        subscriptionRepo.save(sub5);
+        subscriptionRepo.save(sub6);
+        subscriptionRepo.save(sub7);
 
         // --- Usage Records ---
         // Individual (over data limit)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub1.getId(), null, LocalDateTime.now().minusDays(10), 6000, 150, 50, false, false, false));
+        usageRecordRepo.save(new UsageRecord(sub1.getId(), null, LocalDateTime.now().minusDays(10), 6000, 150, 50, false, false, false));
 
         // Family 1 (S2 heavy user, S3 light user)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub2.getId(), familyId1, LocalDateTime.now().minusDays(5), 20000, 100, 100, false, false, false));
-        new UsageRecordRepoImpl().save(new UsageRecord(sub3.getId(), familyId1, LocalDateTime.now().minusDays(3), 6000, 50, 50, true, false, true)); // roaming + extra SMS
+        usageRecordRepo.save(new UsageRecord(sub2.getId(), familyId1, LocalDateTime.now().minusDays(5), 20000, 100, 100, false, false, false));
+        usageRecordRepo.save(new UsageRecord(sub3.getId(), familyId1, LocalDateTime.now().minusDays(3), 6000, 50, 50, true, false, true)); // roaming + extra SMS
 
         // Premium (very high usage, but still under huge allowance)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub4.getId(), null, LocalDateTime.now().minusDays(2), 40000, 1000, 500, false, true, false));
+        usageRecordRepo.save(new UsageRecord(sub4.getId(), null, LocalDateTime.now().minusDays(2), 40000, 1000, 500, false, true, false));
 
         // Student plan (slightly over usage)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub5.getId(), null, LocalDateTime.now().minusDays(1), 3500, 120, 80, false, false, false));
+        usageRecordRepo.save(new UsageRecord(sub5.getId(), null, LocalDateTime.now().minusDays(1), 3500, 120, 80, false, false, false));
 
         // Family 2 (S6 hogging, S7 under-using → fairness check)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub6.getId(), familyId2, LocalDateTime.now().minusDays(6), 18000, 300, 200, false, false, false));
-        new UsageRecordRepoImpl().save(new UsageRecord(sub7.getId(), familyId2, LocalDateTime.now().minusDays(4), 3000, 50, 30, false, false, false));
+        usageRecordRepo.save(new UsageRecord(sub6.getId(), familyId2, LocalDateTime.now().minusDays(6), 18000, 300, 200, false, false, false));
+        usageRecordRepo.save(new UsageRecord(sub7.getId(), familyId2, LocalDateTime.now().minusDays(4), 3000, 50, 30, false, false, false));
 
         // --- Extra scenarios ---
         // Night usage (free nights or discounted nights scenario)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub1.getId(), null, LocalDateTime.now().withHour(23).minusDays(7), 2000, 30, 10, false, false, false));
+        usageRecordRepo.save(new UsageRecord(sub1.getId(), null, LocalDateTime.now().withHour(23).minusDays(7), 2000, 30, 10, false, false, false));
 
         // Weekend heavy usage (Saturday evening binge streaming)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub2.getId(), familyId1, LocalDateTime.now().withHour(20).minusWeeks(2),
+        usageRecordRepo.save(new UsageRecord(sub2.getId(), familyId1, LocalDateTime.now().withHour(20).minusWeeks(2),
                 8000, 200, 50, false, false, false));
 
         // Extreme Overage (huge over data, voice, SMS beyond plan)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub5.getId(), null, LocalDateTime.now().minusDays(2), 8000, 500, 300, false, false, true)); // hitting SMS overage
+        usageRecordRepo.save(new UsageRecord(sub5.getId(), null, LocalDateTime.now().minusDays(2), 8000, 500, 300, false, false, true)); // hitting SMS overage
 
         // Night roaming (travel abroad, late night usage)
-        new UsageRecordRepoImpl().save(new UsageRecord(sub3.getId(), familyId1, LocalDateTime.now().withHour(1).minusDays(5),
+        usageRecordRepo.save(new UsageRecord(sub3.getId(), familyId1, LocalDateTime.now().withHour(1).minusDays(5),
                 1000, 20, 5, true, false, false));
 
         // Weekend + roaming combo
-        new UsageRecordRepoImpl().save(new UsageRecord(sub4.getId(), null, LocalDateTime.now().withHour(15).minusWeeks(1),
+        usageRecordRepo.save(new UsageRecord(sub4.getId(), null, LocalDateTime.now().withHour(15).minusWeeks(1),
                 5000, 200, 100, true, true, false));
 
-        InvoiceRepo invoiceRepo = new InvoiceRepoImpl();
-        BillingServiceImpl billingService = new BillingServiceImpl(invoiceRepo);
 
-        SubscriptionRepoImpl subscriptionRepo = new SubscriptionRepoImpl();
-        PlanRepoImpl planRepo = new PlanRepoImpl();
-        UsageRecordRepoImpl usageRepo = new UsageRecordRepoImpl();
+
 
         // Iterate through all subscriptions
         for (Subscription sub : subscriptionRepo.findAll()) {
             Plan plan = planRepo.findById(sub.getPlanId()).orElseThrow(()->new PlanNotFoundException("Plan not Found"));
 
             // Member usages = usage records for this subscription
-            List<UsageRecord> memberUsage = usageRepo.findBySubscriptionId(sub.getId());
+            List<UsageRecord> memberUsage = usageRecordRepo.findBySubscriptionId(sub.getId());
 
             // All usages = if family, include all family member usages; else just self
             List<UsageRecord> allUsage;
             if (plan.isFamilyPlan() && sub.getFamilyId() != null) {
-                allUsage = usageRepo.findByFamilyId(sub.getFamilyId());
+                allUsage = usageRecordRepo.findByFamilyId(sub.getFamilyId());
             } else {
                 allUsage = memberUsage;
             }
