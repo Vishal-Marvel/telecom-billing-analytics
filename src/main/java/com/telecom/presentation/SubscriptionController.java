@@ -64,9 +64,7 @@ public class SubscriptionController {
         System.out.print("Enter new Phone Number: ");
         String phone = sc.nextLine();
 
-        if (phone.matches("^[6789]\\d{9}$")) {
-            System.out.println("The phone number is added successfully !");
-        } else {
+        if (!phone.matches("^[6789]\\d{9}$")) {
             throw new InvalidPhoneNumberFormatException("Valid phone number: " + phone);
         }
 
