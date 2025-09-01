@@ -64,8 +64,8 @@ public class SubscriptionController {
         System.out.print("Enter new Phone Number: ");
         String phone = sc.nextLine();
 
-        if (!phone.matches("^[6789]\\d{9}$")) {
-            System.out.println("Invalid phone number. Must be 10 digits starting with 7, 8, or 9.");
+        if (phone.matches("^[6789]\\d{9}$")) {
+            System.out.println("The phone number is added successfully !");
         } else {
             throw new InvalidPhoneNumberFormatException("Valid phone number: " + phone);
         }
