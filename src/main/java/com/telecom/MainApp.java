@@ -68,7 +68,6 @@ public class MainApp {
                 }
 
                 System.out.println("Logout successful. Goodbye!");
-                break; // Exit the loop if logout is successful
 
             } catch (Exception e) {
                 System.err.println("An unexpected error occurred: " + e.getMessage());

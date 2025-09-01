@@ -42,7 +42,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         sub.setMnpPending(true);
         sub.setMnpRequestDate(LocalDate.now());
         sub.setTargetOperator(targetOperator);
-        repo.save(sub);
+        repo.update(sub);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         if (!sub.isMnpPending()) throw new RuntimeException("No MNP pending.");
         sub.setMnpPending(false);
         sub.setEndDate(LocalDate.now());
-        repo.save(sub);
+        repo.update(sub);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription sub = getSubscription(subscriptionId);
         sub.setMnpPending(false);
         sub.setTargetOperator(null);
-        repo.save(sub);
+        repo.update(sub);
     }
 
     @Override
@@ -67,6 +67,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription sub = getSubscription(subscriptionId);
         if (sub.isMnpPending()) throw new RuntimeException("Cannot change plan during MNP.");
         sub.setPlanId(newPlanId);
-        repo.save(sub);
+        repo.update(sub);
     }
 }

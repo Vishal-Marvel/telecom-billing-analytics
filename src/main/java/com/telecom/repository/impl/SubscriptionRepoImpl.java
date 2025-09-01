@@ -18,6 +18,11 @@ public class SubscriptionRepoImpl implements SubscriptionRepo {
     }
 
     @Override
+    public void update(Subscription subscription) {
+        db.put(subscription.getId(), subscription);
+    }
+
+    @Override
     public Optional<Subscription> findById(String id) {
         return Optional.ofNullable(db.get(id));
     }

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface SubscriptionRepo {
     void save(Subscription subscription);
+    void update(Subscription subscription);
     Optional<Subscription> findById(String id);
     List<Subscription> findAll();
     List<Subscription> findByCustomerId(String customerId);

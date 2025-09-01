@@ -65,6 +65,7 @@ public class AdminController {
                         break;
                     case 6:
                         checkMNPRequest();
+                        break;
                     case 0:
                         return;
                     default:
